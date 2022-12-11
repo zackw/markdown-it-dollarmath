@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type MarkdownIt from "markdown-it/lib"
-import { escapeHtml } from "markdown-it/lib/common/utils"
 import type Renderer from "markdown-it/lib/renderer"
 import type StateBlock from "markdown-it/lib/rules_block/state_block"
 import type StateInline from "markdown-it/lib/rules_inline/state_inline"
@@ -24,6 +22,44 @@ export interface IOptions {
   renderer?: (content: string, options: IRenderOptions) => string
   /** The render function for label content */
   labelRenderer?: (label: string) => string
+}
+
+/**
+ * Escape a string `s` so that the following invariant holds:
+ *
+ *  let e = escapeHtml(s)
+ *  let p = document.createElement("p");
+ *  p.innerHTML = e;
+ *  assert(p.firstChild.textContent === s)
+ *
+ * Another way to describe the operation is that it escapes, using
+ * HTML character entities, all characters that might be interpreted
+ * as the beginning of an HTML tag or entity.  It also escapes some
+ * characters that are not strictly necessary to escape, but the output
+ * looks weird to a human if you don't (notably `>`).
+ *
+ * Code taken from markdown-it v13, with stylistic and type-related
+ * modifications.
+ */
+function escapeHtml(s: string): string {
+  const REPLACEMENTS = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;"
+  }
+
+  // On the last line of this function, TSC cannot figure out for
+  // itself that 'c' will always be a key of the REPLACEMENTS mapping.
+  // (To do this it would have to compute the set of all strings matched
+  // by a regular expression, which is easy in this case but intractable
+  // in general.)  So we help it out with a type assertion.
+  type TO_REPLACE = keyof typeof REPLACEMENTS
+
+  if (!/[&<>"]/u.test(s)) {
+    return s
+  }
+  return s.replace(/[&<>"]/gu, c => REPLACEMENTS[c as TO_REPLACE])
 }
 
 const OptionDefaults: Required<IOptions> = {
