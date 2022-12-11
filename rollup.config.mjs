@@ -3,7 +3,7 @@ import commonjs from "@rollup/plugin-commonjs"
 import babel from "@rollup/plugin-babel"
 import resolve from "@rollup/plugin-node-resolve"
 import json from "@rollup/plugin-json"
-import { terser } from "rollup-plugin-terser"
+import terser from "@rollup/plugin-terser"
 
 export default {
   input: "src/index.ts",
@@ -17,12 +17,14 @@ export default {
   output: [
     {
       file: "dist/index.umd.js",
+      exports: "named",
       format: "umd", // commonJS
       name: "markdownitDollarmath", // window.name if script loaded directly in browser
       sourcemap: true
     },
     {
       file: "dist/index.umd.min.js",
+      exports: "named",
       format: "umd",
       name: "markdownitDollarmath",
       plugins: [terser()],
@@ -30,11 +32,13 @@ export default {
     },
     {
       file: "dist/index.esm.js",
+      exports: "named",
       format: "esm",
       sourcemap: true
     },
     {
       file: "dist/index.esm.min.js",
+      exports: "named",
       format: "esm", // ES Modules
       plugins: [terser()],
       sourcemap: true
